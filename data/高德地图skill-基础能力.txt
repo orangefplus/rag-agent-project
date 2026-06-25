@@ -1,0 +1,169 @@
+高德地图 基础能力 SKILL（适用于搜索、规划、数据可视化等）
+最后更新时间：2026年03月13日
+来源：https://lbs.amap.com/api/skill/ready-to-use/summary
+
+一、概述
+Skill 让 AI 助手学会新技能。OpenClaw 通过安装不同的 Skill，AI 助手可以获得特定领域的专业能力，在对话中自动识别用户意图并调用对应的 Skill 来完成任务。
+高德地图目前提供了两个核心 Skill：
+1) amap-jsapi-skill：定位前端地图开发，核心能力为地图初始化、3D 视图控制、覆盖物绘制、图层管理、事件系统。
+   下载地址：https://clawhub.ai/lbs-amap/amap-jsapi-skill
+2) amap-lbs-skill：定位 LBS 综合服务，核心能力为 POI 搜索、路径规划、旅游规划、周边搜索、热力图可视化。
+   下载地址：https://clawhub.ai/lbs-amap/amap-lbs-skill
+
+二、amap-jsapi-skill（前端地图开发技能）
+该 Skill 涵盖高德地图 JS API v2.0 (WebGL) 的完整开发能力：
+- 地图生命周期管理：加载器引入、安全密钥配置、Map 实例创建与销毁
+- 3D 视图控制：缩放（zoom）、平移（center）、俯仰（pitch）、旋转（rotation）
+- 覆盖物绘制：点标记（Marker）、海量标注（LabelMarker）、信息窗体（InfoWindow）、右键菜单（ContextMenu）
+- 矢量图形：折线（Polyline）、多边形（Polygon）、圆（Circle）、贝塞尔曲线（BezierCurve）、椭圆（Ellipse）、矩形（Rectangle）
+- 图层管理：标准图层、卫星图层、路网图层、3D 楼块、WMS/WMTS、Canvas 图层、GLCustomLayer（Three.js 集成）
+- 事件系统：点击、拖拽、缩放等交互事件的监听与响应
+- LBS 服务插件：地理编码/逆地理编码、路径规划（驾车/步行/公交）、POI 搜索与输入提示
+- 工具类：测距工具、鼠标绘制工具、图形编辑器（多边形/折线/圆/椭圆/矩形编辑）
+
+三、amap-lbs-skill（LBS 综合服务技能）
+该 Skill 基于高德开放平台的能力，提供开箱即用的地理信息服务：
+- POI 搜索：关键词搜索、城市限定、类型筛选
+- 周边搜索：基于坐标和半径的周边地点搜索
+- 路径规划：步行、驾车、骑行、公交四种出行方式
+- 智能旅游规划：自动搜索兴趣点并规划游览路线
+- 热力图可视化：将地理坐标数据以热力图形式展示
+- 地图链接生成：一键生成高德地图搜索/导航链接
+- 配置持久化：API Key 本地存储管理
+
+四、场景一：搜索能力
+1. 前端搜索（amap-jsapi-skill）
+通过 JS API 的 PlaceSearch 和 AutoComplete 插件，在前端页面中实现交互式搜索体验。适用场景：需要在自己的网页中嵌入地图搜索功能。
+核心 API：
+- AMap.PlaceSearch：POI 关键词搜索，支持城市限定、分页、类型筛选
+- AMap.AutoComplete：输入提示，用户输入时实时推荐匹配地点
+- AMap.Geocoder：地理编码，地址与坐标互转
+- AMap.CloudDataSearch：云图搜索，搜索自有数据
+
+代码示例：
+AMapLoader.load({
+  key: '您的Key',
+  version: '2.0',
+  plugins: ['AMap.PlaceSearch']
+}).then((AMap) => {
+  const map = new AMap.Map('container', { zoom: 13 });
+  const placeSearch = new AMap.PlaceSearch({
+    pageSize: 10,
+    city: '北京',
+    citylimit: true,
+    map: map
+  });
+  placeSearch.search('餐厅', function(status, result) {
+    if (status === 'complete') {
+      console.log('搜索结果：', result.poiList.pois);
+    }
+  });
+});
+
+2. 开放平台接口能力搜索（amap-lbs-skill）
+通过高德开放平台的接口能力进行搜索，直接返回结构化数据或生成地图链接。适用场景：对话式交互中快速搜索地点。
+
+场景 1：关键词直接搜索
+用户：搜美食
+生成：https://www.amap.com/search?query=美食
+
+场景 2：基于位置的周边搜索
+执行流程：
+1) 解析输入：拆分出「位置」和「搜索类别」
+2) 地理编码：调用 API 获取位置坐标
+3) 生成链接：拼接带坐标的周边搜索链接
+示例：用户输入"西直门周边美食" → 位置: 西直门, 类别: 美食 → 坐标: 116.353138,39.939385 → https://ditu.amap.com/search?query=美食&query_type=RQBXY&longitude=116.353138&latitude=39.939385&range=1000
+
+场景 3：POI 详细搜索（脚本方式）
+# 基础搜索
+node scripts/poi-search.js --keywords=肯德基 --city=北京
+# 周边搜索
+node scripts/poi-search.js --keywords=酒店 --location=116.397428,39.90923 --radius=1000
+
+五、场景二：规划能力
+1. 前端路径规划（amap-jsapi-skill）
+通过 JS API 的路径规划插件，在地图上直接展示规划结果。
+核心 API：
+- AMap.Driving：驾车路径规划，支持途径点、避让策略
+- AMap.Walking：步行路径规划，100km 以内步行方案
+- AMap.Transfer：公交路径规划，综合公交/地铁/火车
+- AMap.Riding：骑行路径规划，最大 500km
+- AMap.TruckDriving：货车路径规划，考虑货车限行
+- AMap.DragRoute：可拖拽路线，用户可手动调整路线
+
+2. 智能旅游规划（amap-lbs-skill）
+自动搜索兴趣点并规划游览路线，一站式生成旅游方案。
+使用示例：
+# 北京一日游：景点 + 美食 + 酒店
+node scripts/travel-planner.js --city=北京 --interests=景点,美食,酒店
+# 杭州步行游览
+node scripts/travel-planner.js --city=杭州 --interests=西湖,美食,茶馆 --routeType=walking
+# 上海驾车游览
+node scripts/travel-planner.js --city=上海 --interests=外滩,南京路,城隍庙 --routeType=driving
+
+功能特点：
+- 自动搜索指定城市的兴趣点（每类最多 5 个）
+- 按顺序规划各兴趣点之间的路线
+- 支持多种出行方式（步行/驾车/骑行/公交）
+
+六、场景三：数据可视化能力
+1. 前端可视化（amap-jsapi-skill）
+核心图层：
+- AMap.MassMarks：海量点，高性能渲染大量点标记
+- AMap.LabelsLayer：标注层，海量标注，支持避让
+- AMap.CanvasLayer：Canvas 图层，自定义 Canvas 绑定到地图
+- AMap.ImageLayer：图片图层，将图片叠加到地图指定区域
+- AMap.GLCustomLayer：WebGL 自定义图层，集成 Three.js 等 3D 渲染引擎
+- AMap.TileLayer.WMS：WMS/WMTS 图层，加载标准 WMS/WMTS 地图服务
+
+其他可视化能力：
+- 卫星图层：AMap.TileLayer.Satellite
+- 路况图层：AMap.TileLayer.Traffic
+- 楼块图层：AMap.Buildings
+- 室内地图：AMap.IndoorMap
+
+2. 在线热力图（amap-lbs-skill）
+URL 格式：https://a.amap.com/jsapi_demo_show/static/openclaw/heatmap.html?mapStyle={地图风格}&dataUrl={数据地址(URL编码)}
+参数说明：
+- mapStyle：地图风格，grey（暗黑模式）/ light（浅色模式）
+- dataUrl：数据地址，JSON 格式的 URL（需 URL 编码）
+
+七、Skill 的选择建议
+| 需求场景 | 推荐 Skill | 原因 |
+| 开发一个带地图的网页应用 | amap-jsapi-skill | 提供完整的前端 API 和代码生成 |
+| 在对话中快速搜索地点 | amap-lbs-skill | 直接生成搜索链接，无需编码 |
+| 在页面中嵌入交互式搜索 | amap-jsapi-skill | 支持 PlaceSearch、AutoComplete 等插件 |
+| 规划出行路线并展示在地图上 | amap-jsapi-skill | 路线结果可直接渲染到地图 |
+| 对话式路线规划 | amap-lbs-skill | 命令行脚本快速获取规划结果 |
+| 旅游行程规划 | amap-lbs-skill | 内置智能旅游规划功能 |
+| 开发自定义数据可视化页面 | amap-jsapi-skill | 支持热力图、海量点、WebGL 自定义图层 |
+| 快速生成热力图链接 | amap-lbs-skill | 零代码，提供数据 URL 即可 |
+| 3D 地图效果开发 | amap-jsapi-skill | 支持 3D 视图、GLCustomLayer |
+
+八、前置配置
+1. amap-jsapi-skill
+- 环境要求：Node.js
+- 必需配置：AMAP_JSAPI_KEY（高德 Web 端开发者 Key）
+- 安全密钥：v2.0 起必须配置 securityJsCode，生产环境建议使用代理服务器
+
+2. amap-lbs-skill
+- 环境要求：Node.js、axios
+- 必需配置：AMAP_WEBSERVICE_KEY（高德 Web Service Key）
+- 配置方式：环境变量 / 命令行参数 / config.json / 首次运行自动提示
+
+九、Key 获取方式
+1) 访问高德开放平台 https://lbs.amap.com/ 注册账号
+2) 进入控制台 https://lbs.amap.com/api/webservice/create-project-and-key 创建应用
+3) 根据需要创建 Web 端 Key（JS API 用）或 Web 服务 Key（Web Service 用）
+
+十、OpenClaw 安装 Skill 教程
+以安装 amap-jsapi-skill 为例：
+1) 前置准备：确认已安装 OpenClaw，然后安装 ClawHub CLI：npm install -g clawhub
+2) 第一步：在 ClawHub 上找到 Skill，访问 Skill 页面查看详情
+3) 第二步：安装 Skill：clawhub install amap-jsapi-skill；指定版本：clawhub install amap-jsapi-skill --version 1.0.3
+4) 压缩包地址：https://a.amap.com/jsapi/static/openClaw/amap-jsapi-skill.zip 和 https://a.amap.com/jsapi/static/openClaw/amap-lbs-skill.zip
+5) 第三步：验证安装：clawhub list
+6) 第四步：注册配置高德 key：https://lbs.amap.com/api/javascript-api-v2/prerequisites 注册 AMAP_JSAPI_KEY；https://lbs.amap.com/api/webservice/create-project-and-key 注册 AMAP_WEBSERVICE_KEY；https://console.amap.com/dev/key/app 查看 key
+7) 第五步：开始使用，直接在 OpenClaw 对话中调用 Skill
+更新 Skill：clawhub update amap-jsapi-skill；更新全部：clawhub update --all
+卸载/管理：删除 skills/amap-jsapi-skill/ 目录即可移除。
