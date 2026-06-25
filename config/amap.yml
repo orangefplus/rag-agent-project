@@ -1,0 +1,14 @@
+# 高德 Web 服务 Key 配置
+# 申请地址: https://console.amap.com/dev/key/app
+# 注意: 必须是"Web服务"类型的Key，不要使用JSAPI Key
+#
+# 使用方法（任选其一）:
+# 1. 设置环境变量（推荐）: $env:AMAP_KEY="your_key"
+# 2. 直接修改本文件中的 DEFAULT_AMAP_KEY
+#
+# 当前默认 Key（截图提供，疑似已失效）:
+#   d5e043b73771f7d9a2607303f1b48941  (car_agent_web)
+#   b147eca6c8311273722c995a06732710  (car_agent)
+#   9107c063402fee68411fa80cd8fdf94a  (car_agent_jsapi，仅前端用)
+# 如有更新 Key，请替换下面值:
+DEFAULT_AMAP_KEY = ""  # 留空时将使用环境变量 AMAP_KEY 或内置默认 key
