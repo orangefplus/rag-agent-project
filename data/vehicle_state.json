@@ -1,0 +1,50 @@
+{
+  "ac_on": true,
+  "ac_temp": 24,
+  "ac_fan_speed": 3,
+  "ac_mode": "auto",
+  "windows": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "sunroof": 0,
+  "sunshade": 100,
+  "seat_heating": [
+    0,
+    0
+  ],
+  "seat_ventilation": [
+    0,
+    0
+  ],
+  "steering_heating": 0,
+  "ambient_light_on": true,
+  "ambient_light_color": "蓝色",
+  "ambient_light_mode": "呼吸",
+  "driving_mode": "舒适",
+  "energy_recovery": "中",
+  "fault_codes": [],
+  "battery_percent": 78,
+  "battery_health": 96,
+  "range_km": 412,
+  "total_mileage": 15680,
+  "indoor_temp": 32,
+  "outdoor_temp": 28,
+  "tire_pressure": [
+    2.5,
+    2.5,
+    2.5,
+    2.6
+  ],
+  "location": {
+    "lng": 104.066301,
+    "lat": 30.572961,
+    "city": "成都市",
+    "district": "（IP定位，精度较低）"
+  },
+  "charging": false,
+  "charge_limit": 80,
+  "updated_at": 1781975033.086324
+}
