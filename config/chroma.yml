@@ -1,0 +1,17 @@
+collection_name: agent
+persist_directory: chroma_db
+k: 3
+data_path: data
+md5_hex_store: md5.txt
+allow_knowledge_file_type: ["pdf", "txt"]
+chunk_size: 300
+chunk_overlap: 30
+separators:
+  - "\n\n\n"
+  - "\n\n"
+  - "\n"
+  - "。"
+  - "？"
+  - "！"
+  - "，"
+  - ","
